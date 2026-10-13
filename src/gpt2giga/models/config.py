@@ -147,6 +147,29 @@ class ProxySettings(BaseSettings):
             "revision-suffixed conversation id."
         ),
     )
+    cache_session_enabled: bool = Field(
+        default=False,
+        description=(
+            "Build a stable upstream X-Session-ID from the request's own "
+            "stable prefix so the GigaChat prompt cache works for clients "
+            "that cannot send the header themselves."
+        ),
+    )
+    cache_session_scope: Literal["prefix", "system"] = Field(
+        default="prefix",
+        description=(
+            "Stable prefix used for built cache sessions: 'prefix' covers the "
+            "system prompt plus the leading user turn, 'system' covers only the "
+            "system prompt."
+        ),
+    )
+    cache_session_min_prefix_tokens: PositiveInt = Field(
+        default=1024,
+        description=(
+            "Minimum estimated tokens in the stable prefix before a built "
+            "cache session is applied; shorter prompts are left untouched."
+        ),
+    )
     traffic_log_enabled: bool = Field(
         default=False,
         description="Enable future traffic log event emission.",
@@ -399,6 +422,7 @@ class ProxySettings(BaseSettings):
         "gigachat_api_mode",
         "normalization_mode",
         "conversation_on_divergence",
+        "cache_session_scope",
         "traffic_log_sink",
         "observability_backend",
         mode="before",
